@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Ranking Board</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            width: 300px;
+            text-align: center;
+        }
+        .ranking-board table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .ranking-board th, .ranking-board td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        .ranking-board th {
+            background-color: #f2f2f2;
+        }
+        .button-group {
+            margin-top: 10px;
+        }
+        .button-group button {
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Game Ranking Board</h1>
+        <form action="./index4.html" method="POST">
+            <input type="submit" value="     Retry     ">
+        </form>
+        
+        <div class="ranking-board">
+            <h2>Ranking</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Player ID</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody id="ranking-body">
+                    <!-- Ranking rows will be added here dynamically -->
+                </tbody>
+            </table>
+        </div>
+        <div id="admin-login" class="admin-login">
+            <h3>Admin Login</h3>
+            <input type="password" id="admin-password" placeholder="Enter Admin Password">
+            <button type="button" onclick="adminLogin()">Login</button>
+        </div>
+        <div class="button-group">
+            <button type="button" id="reset-button" onclick="resetRanking()" disabled>Reset Ranking</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadRankingFromURL();
+            loadRankingFromLocalStorage();
+        });
+
+        let players = [];
+
+        
+
+        function loadRankingFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const playerId = urlParams.get('playerId');
+            const score = urlParams.get('score');
+
+            if (playerId !== null && score !== null) {
+                addPlayerToRanking(playerId, parseInt(score));
+            }
+        }
+
+        function addPlayerToRanking(playerId, score) {
+            let players = [];
+            const storedPlayers = localStorage.getItem('players');
+            if (storedPlayers) {
+            players = JSON.parse(storedPlayers);
+            }
+            players.push({ playerId, score });
+            players.sort((a, b) => b.score - a.score);
+            players = players.slice(0, 10);
+            updateRankingBoard(players);
+            localStorage.setItem('players', JSON.stringify(players));
+        }
+
+        function updateRankingBoard() {
+            const rankingBody = document.getElementById('ranking-body');
+            rankingBody.innerHTML = '';
+
+            players.forEach((player, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${player.playerId}</td>
+                    <td>${player.score}</td>
+                `;
+                rankingBody.appendChild(row);
+            });
+        }
+
+        function resetRanking() {
+            players = [];
+            updateRankingBoard();
+            localStorage.removeItem('players');
+            location.reload(); // 페이지 새로고침
+        }
+
+        function loadRankingFromLocalStorage() {
+            const storedPlayers = localStorage.getItem('players');
+            if (storedPlayers) {
+                players = JSON.parse(storedPlayers);
+                updateRankingBoard(players);
+            }
+        }
+
+        function saveRankingToLocalStorage() {
+            localStorage.setItem('players', JSON.stringify(players));
+        }
+
+        function adminLogin() {
+            const adminPassword = document.getElementById('admin-password').value;
+            const correctPassword = '1234'; // password
+
+            if (adminPassword === correctPassword) {
+                document.getElementById('reset-button').disabled = false;
+                alert('Admin login successful.');
+            } else {
+                alert('Incorrect password. Please try again.');
+            }
+        }
+    </script>
+</body>
+</html>

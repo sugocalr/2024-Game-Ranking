@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Ranking Submission</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Game Ranking Submission</h1>
+        <form id="game-form">
+            <input type="text" id="player-id" placeholder="Enter Player ID" required>
+            <input type="number" id="score" placeholder="Enter Score" required>
+            <button type="button" onclick="submitForm()">Submit ID</button>
+        </form>
+    </div>
+
+    <script>
+        function submitForm() {
+            const playerId = document.getElementById('player-id').value;
+            const score = parseFloat(document.getElementById('score').value);
+
+            if (playerId && !isNaN(score)) {
+                const url = `./index5.html?playerId=${playerId}&score=${score}`;
+                window.location.href = url;
+            } else {
+                alert("Please enter both player ID and score.");
+            }
+        }
+
+      function addPlayerToRanking(playerId, score) {
+            let players = [];
+            const storedPlayers = localStorage.getItem('players');
+            if (storedPlayers) {
+                players = JSON.parse(storedPlayers);
+            }
+            players.push({ playerId, score });
+            localStorage.setItem('players', JSON.stringify(players));
+            alert('Ranking information submitted successfully!');
+            document.getElementById('game-form').reset();
+        }
+
+        function loadRankingFromLocalStorage() {
+            const storedPlayers = localStorage.getItem('players');
+            if (storedPlayers) {
+                const players = JSON.parse(storedPlayers);
+                console.log('Loaded players:', players);
+            }
+        }
+    </script>
+</body>
+</html>

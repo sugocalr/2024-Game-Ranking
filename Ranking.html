@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Ranking Board</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            width: 300px;
+            text-align: center;
+        }
+        .ranking-board table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .ranking-board th, .ranking-board td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        .ranking-board th {
+            background-color: #f2f2f2;
+        }
+        .button-group {
+            margin-top: 10px;
+        }
+        .button-group button {
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Game Ranking Board</h1>
+        <form id="game-form">
+            <input type="text" id="player-id" placeholder="Enter Player ID" required>
+            <input type="number" id="score" placeholder="Enter Score" required>
+            <button type="button" onclick="submitID()">Submit ID</button>
+        </form>
+        
+        <div class="ranking-board">
+            <h2>Ranking</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Player ID</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody id="ranking-body">
+                    <!-- Ranking rows -->
+                </tbody>
+            </table>
+        </div>
+        <div id="admin-login" class="admin-login">
+            <h2>Admin Login</h2>
+            <input type="password" id="admin-password" placeholder="Enter Admin Password">
+            <button type="button" onclick="adminLogin()">Login</button>
+        </div>
+        <div class="button-group">
+            <button type="button" id="reset-button" onclick="resetRanking()" disabled>Reset Ranking</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadRankingFromLocalStorage();
+        });
+
+        let players = [];
+
+        function submitID() {
+            const playerId = document.getElementById('player-id').value;
+            const score = document.getElementById('score').value;  // Simulated score
+
+            if (playerId) {
+                addPlayerToRanking(playerId, score);
+                saveRankingToLocalStorage();
+            }
+
+            document.getElementById('game-form').reset();
+        }
+
+        function addPlayerToRanking(playerId, score) {
+            players.push({ playerId, score });
+            players.sort((a, b) => b.score - a.score);
+            if (players.length > 10) {
+                players = players.slice(0, 10);
+            }
+            updateRankingBoard();
+        }
+
+        function updateRankingBoard() {
+            const rankingBody = document.getElementById('ranking-body');
+            rankingBody.innerHTML = '';
+
+            players.forEach((player, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${player.playerId}</td>
+                    <td>${player.score}</td>
+                `;
+                rankingBody.appendChild(row);
+            });
+        }
+
+        function saveRankingToLocalStorage() {
+            localStorage.setItem('players', JSON.stringify(players));
+        }
+
+        function loadRankingFromLocalStorage() {
+            const storedPlayers = localStorage.getItem('players');
+            if (storedPlayers) {
+                players = JSON.parse(storedPlayers);
+                updateRankingBoard();
+            }
+        }
+
+        function resetRanking() {
+            players = [];
+            saveRankingToLocalStorage();
+            updateRankingBoard();
+        }
+
+        function adminLogin() {
+            const adminPassword = document.getElementById('admin-password').value;
+            const correctPassword = '1234'; // password
+
+            if (adminPassword === correctPassword) {
+                document.getElementById('reset-button').disabled = false;
+                alert('Admin login successful.');
+            } else {
+                alert('Incorrect password. Please try again.');
+            }
+        }
+    </script>
+</body>
+</html>
